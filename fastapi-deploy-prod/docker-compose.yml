@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    container_name: fastapi-app
+    environment:
+      - WEB_CONCURRENCY=4
+    volumes:
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    container_name: fastapi-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./static:/app/static:ro
+    depends_on:
+      app:
+        condition: service_healthy
+    restart: unless-stopped
