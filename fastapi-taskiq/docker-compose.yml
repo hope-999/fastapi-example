@@ -1,0 +1,50 @@
+version: "3.8"
+
+services:
+  web:
+    build: .
+    container_name: fastapi-taskiq-web
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+
+  worker:
+    build: .
+    container_name: fastapi-taskiq-worker
+    command: taskiq worker broker:broker --fs-discover
+    environment:
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+    deploy:
+      replicas: 2
+
+  scheduler:
+    build: .
+    container_name: fastapi-taskiq-scheduler
+    command: taskiq scheduler scheduler:scheduler
+    environment:
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+
+  redis:
+    image: redis:7-alpine
+    container_name: fastapi-taskiq-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:
