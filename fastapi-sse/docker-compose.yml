@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  fastapi:
+    build: .
+    container_name: fastapi-sse
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    restart: unless-stopped
+    networks:
+      - sse-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: sse-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - fastapi
+    restart: unless-stopped
+    networks:
+      - sse-network
+
+networks:
+  sse-network:
+    driver: bridge
