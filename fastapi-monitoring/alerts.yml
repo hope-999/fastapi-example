@@ -1,0 +1,29 @@
+groups:
+  - name: fastapi_alerts
+    rules:
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.01
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "错误率超过 1%"
+          description: "5xx 错误率持续 2 分钟超过 1%"
+
+      - alert: SlowResponse
+        expr: histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m])) > 0.5
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "P99 延迟超过 500ms"
+          description: "99% 请求响应时间超过 500ms"
+
+      - alert: HighMemoryUsage
+        expr: process_resident_memory_bytes / 1024 / 1024 > 512
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "内存占用超过 512MB"
+          description: "服务内存持续 5 分钟超过 512MB"
