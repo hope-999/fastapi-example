@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" style="background:#0f172a">
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+    </pattern>
+    <marker id="arrow-cyan" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0,10 3.5,0 7" fill="#22d3ee"/>
+    </marker>
+    <marker id="arrow-rose" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0,10 3.5,0 7" fill="#fb7185"/>
+    </marker>
+    <marker id="arrow-amber" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0,10 3.5,0 7" fill="#fbbf24"/>
+    </marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#0f172a"/>
+  <rect width="100%" height="100%" fill="url(#grid)"/>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap');
+    text { font-family: 'JetBrains Mono','Noto Sans SC','PingFang SC',sans-serif; }
+  </style>
+
+  <!-- 标题 -->
+  <text x="400" y="35" fill="white" font-size="16" font-weight="700" text-anchor="middle">嵌套依赖调用链：Token → 用户 → 权限 → 路由</text>
+
+  <!-- 步骤1: Header -->
+  <rect x="30" y="70" width="160" height="80" rx="6" fill="#0f172a"/>
+  <rect x="30" y="70" width="160" height="80" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+  <text x="110" y="95" fill="white" font-size="11" font-weight="600" text-anchor="middle">① Header</text>
+  <text x="110" y="113" fill="#22d3ee" font-size="9" font-weight="500" text-anchor="middle">token: str = Header(...)</text>
+  <text x="110" y="128" fill="#94a3b8" font-size="8" text-anchor="middle">从请求头提取 JWT</text>
+  <text x="110" y="141" fill="#94a3b8" font-size="8" text-anchor="middle">Authorization: Bearer xxx</text>
+
+  <!-- 箭头1 -->
+  <line x1="190" y1="110" x2="230" y2="110" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#arrow-cyan)"/>
+  <text x="210" y="103" fill="#22d3ee" font-size="8" text-anchor="middle">传递</text>
+
+  <!-- 步骤2: get_current_user -->
+  <rect x="230" y="70" width="160" height="80" rx="6" fill="#0f172a"/>
+  <rect x="230" y="70" width="160" height="80" rx="6" fill="rgba(136,19,55,0.4)" stroke="#fb7185" stroke-width="1.5"/>
+  <text x="310" y="95" fill="white" font-size="11" font-weight="600" text-anchor="middle">② get_current_user</text>
+  <text x="310" y="113" fill="#fb7185" font-size="9" font-weight="500" text-anchor="middle">verify_token(token)</text>
+  <text x="310" y="128" fill="#94a3b8" font-size="8" text-anchor="middle">JWT 解析 + 签名验证</text>
+  <text x="310" y="141" fill="#94a3b8" font-size="8" text-anchor="middle">返回 User 对象</text>
+
+  <!-- 箭头2 -->
+  <line x1="390" y1="110" x2="430" y2="110" stroke="#fb7185" stroke-width="1.5" marker-end="url(#arrow-rose)"/>
+  <text x="410" y="103" fill="#fb7185" font-size="8" text-anchor="middle">注入</text>
+
+  <!-- 步骤3: require_admin -->
+  <rect x="430" y="70" width="160" height="80" rx="6" fill="#0f172a"/>
+  <rect x="430" y="70" width="160" height="80" rx="6" fill="rgba(120,53,15,0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="510" y="95" fill="white" font-size="11" font-weight="600" text-anchor="middle">③ require_admin</text>
+  <text x="510" y="113" fill="#fbbf24" font-size="9" font-weight="500" text-anchor="middle">Depends(get_current_user)</text>
+  <text x="510" y="128" fill="#94a3b8" font-size="8" text-anchor="middle">检查 user.is_admin</text>
+  <text x="510" y="141" fill="#94a3b8" font-size="8" text-anchor="middle">403 或返回 User</text>
+
+  <!-- 箭头3 -->
+  <line x1="590" y1="110" x2="630" y2="110" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arrow-amber)"/>
+  <text x="610" y="103" fill="#fbbf24" font-size="8" text-anchor="middle">注入</text>
+
+  <!-- 步骤4: 路由处理 -->
+  <rect x="630" y="70" width="150" height="80" rx="6" fill="#0f172a"/>
+  <rect x="630" y="70" width="150" height="80" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+  <text x="705" y="95" fill="white" font-size="11" font-weight="600" text-anchor="middle">④ admin_only</text>
+  <text x="705" y="113" fill="#34d399" font-size="9" font-weight="500" text-anchor="middle">@router.get(...)</text>
+  <text x="705" y="128" fill="#94a3b8" font-size="8" text-anchor="middle">路由只关心最终对象</text>
+  <text x="705" y="141" fill="#94a3b8" font-size="8" text-anchor="middle">业务逻辑无感知</text>
+
+  <!-- 403 分支 -->
+  <path d="M 510 150 L 510 180 L 705 180 L 705 150" fill="none" stroke="#fb7185" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#arrow-rose)"/>
+  <rect x="520" y="160" width="170" height="28" rx="4" fill="rgba(136,19,55,0.3)" stroke="#fb7185" stroke-width="1"/>
+  <text x="605" y="178" fill="#fb7185" font-size="9" text-anchor="middle">❌ 403 权限不足，路由不执行</text>
+
+  <!-- 核心优势 -->
+  <rect x="30" y="220" width="740" height="70" rx="8" fill="#0f172a"/>
+  <rect x="30" y="220" width="740" height="70" rx="8" fill="rgba(59,130,246,0.1)" stroke="#60a5fa" stroke-width="1" stroke-dasharray="6,3"/>
+  <text x="50" y="242" fill="#60a5fa" font-size="10" font-weight="600">核心优势</text>
+  <text x="50" y="260" fill="white" font-size="9">• 路由层只声明 Depends(require_admin)，不感知底层校验逻辑</text>
+  <text x="50" y="275" fill="white" font-size="9">• 权限层级可无限嵌套：token → user → admin → super_admin → route，每层复用下层</text>
+  <text x="50" y="290" fill="white" font-size="9">• 新增权限维度只需增加一个依赖函数，不改任何路由代码</text>
+
+  <!-- 代码示例 -->
+  <rect x="30" y="310" width="740" height="90" rx="6" fill="#0f172a"/>
+  <rect x="30" y="310" width="740" height="90" rx="6" fill="rgba(30,41,59,0.5)" stroke="#64748b" stroke-width="1"/>
+  <text x="45" y="330" fill="#94a3b8" font-size="8" font-family="monospace">async def get_current_user(token: str = Header(...)):</text>
+  <text x="45" y="345" fill="#94a3b8" font-size="8" font-family="monospace">    return verify_token(token)  # 解析 JWT → User</text>
+  <text x="45" y="360" fill="#94a3b8" font-size="8" font-family="monospace"></text>
+  <text x="45" y="375" fill="#94a3b8" font-size="8" font-family="monospace">async def require_admin(user: User = Depends(get_current_user)):</text>
+  <text x="45" y="390" fill="#94a3b8" font-size="8" font-family="monospace">    if not user.is_admin: raise HTTPException(403, "需要管理员权限")</text>
+
+  <!-- 底部提示 -->
+  <text x="400" y="410" fill="#64748b" font-size="9" text-anchor="middle">权限层级越复杂，嵌套依赖的价值越大 — 每个依赖只做一件事，组合起来就是完整的权限校验链</text>
+</svg>
